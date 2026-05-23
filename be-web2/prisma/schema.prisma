@@ -14,10 +14,10 @@ model Event {
   dateEvent   DateTime      @map("date_event")
   description String        @db.Text
   categoryId  Int           @map("category_id")
-  speakerId   Int           @map("speaker_id")
+  pembicaraId Int           @map("pembicara_id")
   createdAt   DateTime      @default(now()) @map("created_at")
   category    CategoryEvent @relation(fields: [categoryId], references: [id])
-  speaker     Speaker       @relation(fields: [speakerId], references: [id])
+  pembicara   Pembicara     @relation(fields: [pembicaraId], references: [id])
 
   @@map("events")
 }
@@ -31,22 +31,22 @@ model CategoryEvent {
   @@map("category_event")
 }
 
-model Speaker {
+model Pembicara {
   id      Int     @id @default(autoincrement())
   nama    String
   materi  String? @db.Text
   jabatan String
-  foto    String? // Dibuat opsional agar tidak crash saat create jika belum ada foto
+  foto    String?
   events  Event[]
 
-  @@map("speakers")
+  @@map("speakers")  // ← Sesuaikan dengan nama table di database
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  nim      String @unique
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
   password String
-  nama     String
+  name     String?
 
   @@map("users")
 }
