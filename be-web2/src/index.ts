@@ -7,23 +7,10 @@ import pembicaraRoutes from "./routes/pembicaraRoute.js";
 const app = express();
 const port = process.env.PORT || 3000;
 
-// 1. CORS Configuration: Mengizinkan frontend akses ke backend
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "http://localhost:3000",
-  "https://my-web-invofest.vercel.app",
-];
-
+// 1. CORS Configuration: Dinamis untuk semua domain (aman untuk Vercel)
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: "*", // Mengizinkan semua origin agar tidak ada CORS error lagi
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -35,12 +22,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // 2. Routes: Endpoint API
-// Pastikan nama rute di sini SAMA PERSIS dengan fetch di frontend
 app.use("/api/events", eventRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/speakers", pembicaraRoutes);
 
-// Health Check untuk cek apakah server hidup
+// Health Check
 app.get("/api/health", (_req, res) => {
   res.json({ status: "success", message: "Backend is running" });
 });
@@ -50,14 +36,14 @@ app.get("/", (_req, res) => {
   res.json({ message: "Selamat datang di API Invofest!", version: "1.0.0" });
 });
 
-// 3. 404 Handler: Jika akses rute yang tidak terdaftar
+// 3. 404 Handler
 app.use((_req, res) => {
   res
     .status(404)
     .json({ status: "error", message: "Endpoint tidak ditemukan" });
 });
 
-// 4. Global Error Handler: Menangkap error database atau server
+// 4. Global Error Handler
 app.use(
   (
     err: any,
@@ -73,10 +59,12 @@ app.use(
   },
 );
 
-// Jalankan Server
-app.listen(port, () => {
-  console.log(`🚀 Server running on http://localhost:${port}`);
-  console.log(`📍 Routes: /api/events, /api/categories, /api/speakers`);
-});
+// Jalankan Server (Hanya untuk local development)
+if (process.env.NODE_ENV !== "production") {
+  app.listen(port, () => {
+    console.log(`🚀 Server running on http://localhost:${port}`);
+  });
+}
 
+// Penting untuk Vercel
 export default app;
