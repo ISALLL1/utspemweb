@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import { prisma } from "../lib/db.js";
+import prisma from "../lib/db.js";
 
 export const getAllEvents = async (req: Request, res: Response) => {
   try {
     const events = await prisma.event.findMany({
       include: {
         category: true,
-        pembicara: true, // ← Ubah dari 'speaker'
+        pembicara: true,
       },
     });
     res.json(events);
@@ -21,7 +21,7 @@ export const getAllEvents = async (req: Request, res: Response) => {
 export const createEvent = async (req: Request, res: Response) => {
   try {
     const { nama, location, dateEvent, description, categoryId, pembicaraId } =
-      req.body; // ← Ubah dari 'speakerId'
+      req.body;
 
     if (
       !nama ||
@@ -43,7 +43,7 @@ export const createEvent = async (req: Request, res: Response) => {
         dateEvent: new Date(dateEvent),
         description,
         categoryId: Number(categoryId),
-        pembicaraId: Number(pembicaraId), // ← Ubah dari 'speakerId'
+        pembicaraId: Number(pembicaraId),
       },
     });
 
@@ -62,7 +62,7 @@ export const getEventById = async (req: Request, res: Response) => {
       where: { id },
       include: {
         category: true,
-        pembicara: true, // ← Ubah dari 'speaker'
+        pembicara: true,
       },
     });
 
@@ -79,7 +79,7 @@ export const updateEventById = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
     const { nama, location, dateEvent, description, categoryId, pembicaraId } =
-      req.body; // ← Ubah dari 'speakerId'
+      req.body;
 
     const updateEventById = await prisma.event.update({
       where: { id },
@@ -89,7 +89,7 @@ export const updateEventById = async (req: Request, res: Response) => {
         dateEvent: new Date(dateEvent),
         description,
         categoryId: Number(categoryId),
-        pembicaraId: Number(pembicaraId), // ← Ubah dari 'speakerId'
+        pembicaraId: Number(pembicaraId),
       },
     });
     res.json(updateEventById);

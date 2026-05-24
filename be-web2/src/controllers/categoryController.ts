@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { prisma } from "../lib/db.js";
+import prisma from "../lib/db.js";
 
 //1. Menampilkan semuan kategori
 export const getAllCategories = async (req: Request, res: Response) => {

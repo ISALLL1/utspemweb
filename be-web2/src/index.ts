@@ -1,9 +1,21 @@
 import express from "express";
+import cors from "cors";
 import eventRoutes from "./routes/eventRoute.js";
 import categoryRoutes from "./routes/categoryRoute.js";
 import pembicaraRoutes from "./routes/pembicaraRoute.js";
 
 const app = express();
+const port = process.env.PORT || 3000;
+
+// CORS Middleware (HARUS DI ATAS)
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 // Middleware dasar
 app.use(express.json());
@@ -45,5 +57,12 @@ app.use(
     });
   },
 );
+
+// Hanya listen untuk development
+if (process.env.NODE_ENV !== "production") {
+  app.listen(port, () =>
+    console.log(`🚀 Server running on http://localhost:${port}`),
+  );
+}
 
 export default app;

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { prisma } from "../lib/db.js";
+import prisma from "../lib/db.js";
 
 // Menampilkan semua pembicara
 export const getAllSpeakers = async (req: Request, res: Response) => {
