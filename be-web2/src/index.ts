@@ -1,21 +1,11 @@
 import express from "express";
-import cors from "cors";
 import eventRoutes from "./routes/eventRoute.js";
 import categoryRoutes from "./routes/categoryRoute.js";
 import pembicaraRoutes from "./routes/pembicaraRoute.js";
 
 const app = express();
 
-// Konfigurasi CORS agar bisa diakses oleh Frontend Vercel
-app.use(
-  cors({
-    origin: "*",
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
-);
-
+// Middleware dasar
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -56,5 +46,4 @@ app.use(
   },
 );
 
-// VERCEL Wajib export default app tanpa app.listen
 export default app;
