@@ -7,7 +7,6 @@ import pembicaraRoutes from "./routes/pembicaraRoute.js";
 const app = express();
 const port = process.env.PORT || 3000;
 
-// CORS Configuration
 app.use(
   cors({
     origin: "*",
@@ -16,33 +15,27 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
 app.use("/api/events", eventRoutes);
 app.use("/api/categories", categoryRoutes);
-app.use("/api/pembicara", pembicaraRoutes); // ✅ Ubah dari /speakers jadi /pembicara
+app.use("/api/pembicara", pembicaraRoutes);
 
-// Health Check
 app.get("/api/health", (_req, res) => {
   res.json({ status: "success", message: "Backend is running" });
 });
 
-// Root
 app.get("/", (_req, res) => {
   res.json({ message: "Selamat datang di API Invofest!", version: "1.0.0" });
 });
 
-// 404 Handler
 app.use((_req, res) => {
   res
     .status(404)
     .json({ status: "error", message: "Endpoint tidak ditemukan" });
 });
 
-// Error Handler
 app.use(
   (
     err: any,
@@ -58,10 +51,11 @@ app.use(
   },
 );
 
+// Hanya listen untuk development
 if (process.env.NODE_ENV !== "production") {
-  app.listen(port, () => {
-    console.log(`🚀 Server running on http://localhost:${port}`);
-  });
+  app.listen(port, () =>
+    console.log(`🚀 Server running on http://localhost:${port}`),
+  );
 }
 
 export default app;
