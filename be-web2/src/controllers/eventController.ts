@@ -3,17 +3,13 @@ import prisma from "../lib/db.js";
 
 export const getAllEvents = async (req: Request, res: Response) => {
   try {
-    const events = await prisma.event.findMany({
-      include: {
-        category: true,
-        pembicara: true,
-      },
-    });
+    const events = await prisma.event.findMany();
     res.json(events);
-  } catch (error) {
+  } catch (error: any) {
+    console.error("Error fetching events:", error);
     res.status(500).json({
       message: "Gagal mengambil data event",
-      error,
+      error: error.message,
     });
   }
 };
@@ -48,10 +44,13 @@ export const createEvent = async (req: Request, res: Response) => {
     });
 
     res.status(201).json(newEvent);
-  } catch (error) {
+  } catch (error: any) {
     res
       .status(500)
-      .json({ message: "Terjadi kesalahan saat membuat event", error });
+      .json({
+        message: "Terjadi kesalahan saat membuat event",
+        error: error.message,
+      });
   }
 };
 
@@ -60,18 +59,16 @@ export const getEventById = async (req: Request, res: Response) => {
     const id = Number(req.params.id);
     const event = await prisma.event.findUnique({
       where: { id },
-      include: {
-        category: true,
-        pembicara: true,
-      },
     });
 
     if (!event) {
       return res.status(404).json({ message: "Event tidak ditemukan" });
     }
     res.json(event);
-  } catch (error) {
-    res.status(500).json({ message: "Terjadi Kesalahan", error });
+  } catch (error: any) {
+    res
+      .status(500)
+      .json({ message: "Terjadi Kesalahan", error: error.message });
   }
 };
 
@@ -93,8 +90,10 @@ export const updateEventById = async (req: Request, res: Response) => {
       },
     });
     res.json(updateEventById);
-  } catch (error) {
-    res.status(500).json({ message: "Gagal update event!", error });
+  } catch (error: any) {
+    res
+      .status(500)
+      .json({ message: "Gagal update event!", error: error.message });
   }
 };
 
@@ -103,7 +102,9 @@ export const deleteEventById = async (req: Request, res: Response) => {
     const id = Number(req.params.id);
     await prisma.event.delete({ where: { id } });
     res.json({ message: "Events berhasil dihapus!" });
-  } catch (error) {
-    res.status(500).json({ message: "Gagal menghapus event!", error });
+  } catch (error: any) {
+    res
+      .status(500)
+      .json({ message: "Gagal menghapus event!", error: error.message });
   }
 };

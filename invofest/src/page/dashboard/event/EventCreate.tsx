@@ -30,18 +30,21 @@ export default function EventCreate() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...data,
-          // Mengubah string date dari input menjadi format Date yang valid
-          dateEvent: new Date(data.dateEvent),
+          nama: data.nama,
+          location: data.location,
+          dateEvent: data.dateEvent,
+          description: data.description,
           categoryId: Number(data.categoryId),
-          speakerId: Number(data.speakerId),
+          pembicaraId: Number(data.speakerId),
         }),
       });
 
       if (response.ok) {
+        alert("Event berhasil disimpan!");
         setRedirect(true);
       } else {
-        alert("Gagal menyimpan event");
+        const error = await response.json();
+        alert(`Error: ${error.message}`);
       }
     } catch (error) {
       console.error("Error:", error);

@@ -33,7 +33,7 @@ export default function Dashboard() {
       .then((data) => setCategories(Array.isArray(data) ? data : []))
       .catch((err) => console.log("Error categories:", err));
 
-    // FETCH SPEAKERS - DIUBAH MENJADI /api/pembicara
+    // FETCH SPEAKERS
     fetch(`${apiUrl}/api/pembicara`)
       .then((res) => res.json())
       .then((data) => setSpeakers(Array.isArray(data) ? data : []))
