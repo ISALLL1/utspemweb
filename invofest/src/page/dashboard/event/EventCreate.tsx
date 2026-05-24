@@ -1,152 +1,97 @@
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import Button from "../../../components/Button";
 import Input from "../../../components/Input";
 import { Select } from "../../../components/Select";
 
-type FormData = {
-  nama: string;
-  location: string;
-  dateEvent: string;
-  description: string;
-  categoryId: string;
-  speakerId: string;
-};
-
-const schema = z.object({
-  nama: z.string().min(1, "Nama event wajib diisi!"),
-  location: z.string().min(1, "Lokasi event wajib diisi!"),
-  dateEvent: z.string().min(1, "Tanggal wajib diisi!"),
-  description: z.string().min(1, "Deskripsi wajib diisi!"),
-  categoryId: z.string().min(1, "Pilih kategori event!"),
-  speakerId: z.string().min(1, "Pilih speaker!"),
-});
-
 export default function EventCreate() {
   const [categories, setCategories] = useState([]);
   const [speakers, setSpeakers] = useState([]);
+  const [redirect, setRedirect] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL;
+  const { register, handleSubmit } = useForm();
 
   useEffect(() => {
-    fetch(import.meta.env.VITE_API_URL + "/categories")
-      .then((res) => res.json())
-      .then((data) => setCategories(data));
+    fetch(`${API_URL}/api/categories`)
+      .then((r) => r.json())
+      .then(setCategories)
+      .catch((err) => console.error("Gagal ambil kategori", err));
 
-    fetch(import.meta.env.VITE_API_URL + "/speakers")
-      .then((res) => res.json())
-      .then((data) => setSpeakers(data));
-  }, []);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(schema),
-  });
+    fetch(`${API_URL}/api/pembicara`)
+      .then((r) => r.json())
+      .then(setSpeakers)
+      .catch((err) => console.error("Gagal ambil pembicara", err));
+  }, [API_URL]);
 
-  const [redirect, setRedirect] = useState(false);
-
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: any) => {
     try {
-      await fetch(import.meta.env.VITE_API_URL + "/events", {
+      const response = await fetch(`${API_URL}/api/events`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          nama: data.nama,
-          location: data.location,
+          ...data,
+          // Mengubah string date dari input menjadi format Date yang valid
           dateEvent: new Date(data.dateEvent),
-          description: data.description,
           categoryId: Number(data.categoryId),
           speakerId: Number(data.speakerId),
         }),
       });
-      setRedirect(true);
+
+      if (response.ok) {
+        setRedirect(true);
+      } else {
+        alert("Gagal menyimpan event");
+      }
     } catch (error) {
-      console.log("Gagal menambahkan event", error);
+      console.error("Error:", error);
+      alert("Terjadi kesalahan koneksi");
     }
   };
 
-  if (redirect) {
-    return <Navigate to="/dashboard/event" />;
-  }
+  if (redirect) return <Navigate to="/dashboard/event" />;
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-10">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-lg">
-        <h2 className="text-3xl font-bold text-center mb-1 text-[#76153C]">
-          Tambah Event
-        </h2>
-        <p className="text-center mb-3 text-gray-500">
-          Silahkan Isi detail event
-        </p>
+    <div className="p-10">
+      <h2 className="text-2xl font-bold mb-6 text-[#76153C]">
+        Tambah Event Baru
+      </h2>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-4 max-w-lg"
+      >
+        <Input label="Nama Event" name="nama" register={register} />
+        <Input
+          label="Tanggal"
+          name="dateEvent"
+          type="date"
+          register={register}
+        />
+        <Input label="Lokasi" name="location" register={register} />
+        <Input label="Deskripsi" name="description" register={register} />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <Input
-            label="Nama Event"
-            name="nama"
-            register={register}
-            error={errors.nama?.message}
-            placeholder="Contoh: Human-AI Integration..."
-          />
+        <Select
+          label="Kategori"
+          name="categoryId"
+          register={register}
+          options={categories.map((c: any) => ({
+            label: c.nama,
+            value: String(c.id),
+          }))}
+        />
 
-          <Input
-            label="Tanggal Event"
-            name="dateEvent"
-            type="date"
-            register={register}
-            error={errors.dateEvent?.message}
-            placeholder=""
-          />
+        <Select
+          label="Speaker"
+          name="speakerId"
+          register={register}
+          options={speakers.map((s: any) => ({
+            label: s.nama,
+            value: String(s.id),
+          }))}
+        />
 
-          <Input
-            label="Lokasi Event"
-            name="location"
-            register={register}
-            error={errors.location?.message}
-            placeholder="Contoh: Aula Gedung C"
-          />
-
-          <Input
-            label="Deskripsi"
-            name="description"
-            register={register}
-            error={errors.description?.message}
-            placeholder="Contoh: Universitas Harkat Negeri"
-          />
-
-          <Select
-            label="Kategori"
-            name="categoryId"
-            register={register}
-            options={categories.map((c: any) => ({
-              label: c.nama,
-              value: String(c.id),
-            }))}
-            error={errors.categoryId?.message}
-          />
-
-          <Select
-            label="Speaker"
-            name="speakerId"
-            register={register}
-            options={speakers.map((s: any) => ({
-              label: s.nama,
-              value: String(s.id),
-            }))}
-            error={errors.speakerId?.message}
-          />
-
-          <Button
-            title="Tambah event"
-            variant="primary"
-            className="hover:bg-[#3A0519]"
-          />
-        </form>
-      </div>
+        <Button title="Simpan Event" variant="primary" />
+      </form>
     </div>
   );
 }
