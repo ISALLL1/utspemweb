@@ -1,21 +1,16 @@
 import { Request, Response } from "express";
 import { prisma } from "../lib/db.js";
 
-// menampilkan semua event
 export const getAllEvents = async (req: Request, res: Response) => {
   try {
-    //ambil data dari database
     const events = await prisma.event.findMany({
       include: {
         category: true,
-        speaker: true,
+        pembicara: true, // ← Ubah dari 'speaker'
       },
     });
-
-    //tampilkan semua data
     res.json(events);
   } catch (error) {
-    //jika gagal
     res.status(500).json({
       message: "Gagal mengambil data event",
       error,
@@ -23,11 +18,10 @@ export const getAllEvents = async (req: Request, res: Response) => {
   }
 };
 
-// menampilkan data event terbaru
 export const createEvent = async (req: Request, res: Response) => {
   try {
-    const { nama, location, dateEvent, description, categoryId, speakerId } =
-      req.body;
+    const { nama, location, dateEvent, description, categoryId, pembicaraId } =
+      req.body; // ← Ubah dari 'speakerId'
 
     if (
       !nama ||
@@ -35,7 +29,7 @@ export const createEvent = async (req: Request, res: Response) => {
       !dateEvent ||
       !description ||
       !categoryId ||
-      !speakerId
+      !pembicaraId
     ) {
       return res
         .status(400)
@@ -49,7 +43,7 @@ export const createEvent = async (req: Request, res: Response) => {
         dateEvent: new Date(dateEvent),
         description,
         categoryId: Number(categoryId),
-        speakerId: Number(speakerId),
+        pembicaraId: Number(pembicaraId), // ← Ubah dari 'speakerId'
       },
     });
 
@@ -61,7 +55,6 @@ export const createEvent = async (req: Request, res: Response) => {
   }
 };
 
-//menampilkan data event berdasarkan id
 export const getEventById = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
@@ -69,30 +62,24 @@ export const getEventById = async (req: Request, res: Response) => {
       where: { id },
       include: {
         category: true,
-        speaker: true,
+        pembicara: true, // ← Ubah dari 'speaker'
       },
     });
 
     if (!event) {
-      return res.status(404).json({
-        message: "Event tidak ditemukan",
-      });
+      return res.status(404).json({ message: "Event tidak ditemukan" });
     }
     res.json(event);
   } catch (error) {
-    res.status(500).json({
-      message: "Terjadi Kesalahan",
-      error,
-    });
+    res.status(500).json({ message: "Terjadi Kesalahan", error });
   }
 };
 
-//mengupdate data event berdasarkan id
 export const updateEventById = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
-    const { nama, location, dateEvent, description, categoryId, speakerId } =
-      req.body;
+    const { nama, location, dateEvent, description, categoryId, pembicaraId } =
+      req.body; // ← Ubah dari 'speakerId'
 
     const updateEventById = await prisma.event.update({
       where: { id },
@@ -102,7 +89,7 @@ export const updateEventById = async (req: Request, res: Response) => {
         dateEvent: new Date(dateEvent),
         description,
         categoryId: Number(categoryId),
-        speakerId: Number(speakerId),
+        pembicaraId: Number(pembicaraId), // ← Ubah dari 'speakerId'
       },
     });
     res.json(updateEventById);
@@ -111,13 +98,10 @@ export const updateEventById = async (req: Request, res: Response) => {
   }
 };
 
-//menghapus data event berdasarkan id
 export const deleteEventById = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
-    await prisma.event.delete({
-      where: { id },
-    });
+    await prisma.event.delete({ where: { id } });
     res.json({ message: "Events berhasil dihapus!" });
   } catch (error) {
     res.status(500).json({ message: "Gagal menghapus event!", error });

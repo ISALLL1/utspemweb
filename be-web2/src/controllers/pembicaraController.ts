@@ -4,11 +4,11 @@ import { prisma } from "../lib/db.js";
 // Menampilkan semua pembicara
 export const getAllSpeakers = async (req: Request, res: Response) => {
   try {
-    const speakers = await prisma.speaker.findMany();
+    const speakers = await prisma.pembicara.findMany();
     res.json(speakers);
   } catch (error) {
-    console.error("Error fetching speakers:", error); // Log untuk debug
-    res.status(500).json([]); // KIRIM ARRAY KOSONG agar frontend tidak crash
+    console.error("Error fetching speakers:", error);
+    res.status(500).json([]);
   }
 };
 
@@ -17,14 +17,13 @@ export const createSpeaker = async (req: Request, res: Response) => {
   try {
     const { nama, materi, jabatan, foto } = req.body;
 
-    // Validasi input
     if (!nama || !jabatan || !foto) {
       return res
         .status(400)
         .json({ message: "Nama, jabatan, dan foto harus diisi!" });
     }
 
-    const newSpeaker = await prisma.speaker.create({
+    const newSpeaker = await prisma.pembicara.create({
       data: { nama, materi, jabatan, foto },
     });
 
@@ -41,10 +40,9 @@ export const getSpeakerById = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
 
-    // Tambahkan validasi ID
     if (isNaN(id)) return res.status(400).json({ message: "ID tidak valid" });
 
-    const speaker = await prisma.speaker.findUnique({
+    const speaker = await prisma.pembicara.findUnique({
       where: { id },
     });
 
@@ -67,7 +65,7 @@ export const updateSpeakerById = async (req: Request, res: Response) => {
 
     const { nama, materi, jabatan, foto } = req.body;
 
-    const updatedSpeaker = await prisma.speaker.update({
+    const updatedSpeaker = await prisma.pembicara.update({
       where: { id },
       data: { nama, materi, jabatan, foto },
     });
@@ -85,7 +83,7 @@ export const deleteSpeakerById = async (req: Request, res: Response) => {
     const id = Number(req.params.id);
     if (isNaN(id)) return res.status(400).json({ message: "ID tidak valid" });
 
-    await prisma.speaker.delete({
+    await prisma.pembicara.delete({
       where: { id },
     });
 
