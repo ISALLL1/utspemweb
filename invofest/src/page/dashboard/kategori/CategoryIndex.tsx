@@ -9,34 +9,38 @@ interface Category {
 
 export default function CategoryIndex() {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // Tambahkan status loading
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Mengambil URL dari Environment Variable yang diset di Vercel
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    fetch(import.meta.env.VITE_API_URL + "/categories")
+    // TAMBAHKAN /api/ agar sesuai dengan route di backend Anda
+    fetch(`${API_URL}/api/categories`)
       .then((res) => res.json())
       .then((data) => {
-        // Pastikan data adalah array
         setCategories(Array.isArray(data) ? data : []);
         setIsLoading(false);
       })
       .catch((error) => {
-        console.log("Gagal mengambil data", error);
+        console.error("Gagal mengambil data:", error);
         setIsLoading(false);
       });
-  }, []);
+  }, [API_URL]); // Tambahkan API_URL sebagai dependency
 
   const handleDelete = async (id: number) => {
     const confirmDelete = confirm("Yakin ingin menghapus category?");
     if (!confirmDelete) return;
 
     try {
-      await fetch(import.meta.env.VITE_API_URL + `/categories/${id}`, {
+      // TAMBAHKAN /api/ agar sesuai dengan route di backend Anda
+      await fetch(`${API_URL}/api/categories/${id}`, {
         method: "DELETE",
       });
       setCategories((prev) => prev.filter((c) => c.id !== id));
       alert("Category berhasil dihapus");
     } catch (error) {
-      console.log(error);
+      console.error(error);
       alert("Gagal menghapus category!");
     }
   };
@@ -61,7 +65,6 @@ export default function CategoryIndex() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* JARING PENGAMAN: Cek apakah categories memiliki isi */}
         {categories.length > 0 ? (
           categories.map((category) => (
             <div
