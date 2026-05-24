@@ -5,8 +5,8 @@ import categoryRoutes from "./routes/categoryRoute.js";
 import pembicaraRoutes from "./routes/pembicaraRoute.js";
 
 const app = express();
-const port = process.env.PORT || 3000;
 
+// Konfigurasi CORS agar bisa diakses oleh Frontend Vercel
 app.use(
   cors({
     origin: "*",
@@ -15,13 +15,16 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Routes
 app.use("/api/events", eventRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/pembicara", pembicaraRoutes);
 
+// Endpoint Health Check
 app.get("/api/health", (_req, res) => {
   res.json({ status: "success", message: "Backend is running" });
 });
@@ -30,12 +33,14 @@ app.get("/", (_req, res) => {
   res.json({ message: "Selamat datang di API Invofest!", version: "1.0.0" });
 });
 
+// Error Handler untuk 404
 app.use((_req, res) => {
   res
     .status(404)
     .json({ status: "error", message: "Endpoint tidak ditemukan" });
 });
 
+// Global Error Handler
 app.use(
   (
     err: any,
@@ -51,11 +56,5 @@ app.use(
   },
 );
 
-// Hanya listen untuk development
-if (process.env.NODE_ENV !== "production") {
-  app.listen(port, () =>
-    console.log(`🚀 Server running on http://localhost:${port}`),
-  );
-}
-
+// VERCEL Wajib export default app tanpa app.listen
 export default app;
